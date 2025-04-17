@@ -1,11 +1,12 @@
+// app/interview/page.jsx
 import React from 'react'
+import { getAssessments } from '../../actions/interview';
+import InterviewClient from './InterviewClient';
 
-const InterviewPage = () => {
-  return (
-    <div>
-      <h1>Interview</h1>
-    </div>
-  )
-}
+const InterviewPage = async () => {
+  const assessments = await getAssessments();
 
-export default InterviewPage
+  return <InterviewClient assessments={assessments} />;
+};
+
+export default InterviewPage;
