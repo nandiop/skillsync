@@ -18,7 +18,9 @@ import { BarLoader } from "react-spinners";
 import { RadioGroup, RadioGroupItem } from "../../../components/ui/radio-group";
 import { Label } from "../../../components/ui/label";
 import { toast } from "sonner";
-import QuizResults from "../components/quiz-result";
+import { Loader2 } from "lucide-react";
+import QuizResult from "./quiz-result";
+
 
 const Quiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -38,8 +40,11 @@ const Quiz = () => {
     setData: setResultData,
   } = useFetch(saveQuizResult);
 
+  console.log(resultData);
+  
+
   useEffect(() => {
-    if (quizData && quizData.length > 0) {
+    if (quizData) {
       setAnswers(new Array(quizData.length).fill(null));
     }
   }, [quizData]);
@@ -51,11 +56,6 @@ const Quiz = () => {
   };
 
   const handleNext = () => {
-    if (!quizData || currentQuestion >= quizData.length) {
-      console.error("Invalid quiz data or question index:", { quizData, currentQuestion });
-      return;
-    }
-
     if (currentQuestion < quizData.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setShowExplanation(false);
@@ -65,14 +65,9 @@ const Quiz = () => {
   };
 
   const calculateScore = () => {
-    if (!quizData || !answers || quizData.length !== answers.length) {
-      console.error("Invalid quiz data or answers:", { quizData, answers });
-      return 0;
-    }
-
     let correct = 0;
     answers.forEach((answer, index) => {
-      if (answer === quizData[index]?.correctAnswer) {
+      if (answer === quizData[index].correctAnswer) {
         correct++;
       }
     });
@@ -80,24 +75,27 @@ const Quiz = () => {
   };
 
   const finishQuiz = async () => {
-    if (!quizData || !answers || quizData.length !== answers.length) {
-      console.error("Cannot finish quiz: Invalid quiz data or answers", {
-        quizData,
-        answers,
-      });
-      toast.error("Cannot finish quiz: Invalid data");
-      return;
-    }
-
     const score = calculateScore();
+
+    console.log("Quiz Data (questions):", quizData);
+    console.log("Answers:", answers);
+    console.log("Score:", score);
+
     try {
-      const result = await saveQuizResultFn(quizData, answers, score);
-      console.log("Quiz result saved successfully:", result);
-      toast.success("Quiz completed!");
+      await saveQuizResultFn(quizData, answers, score);
+      toast.success("Quiz Completed!");
     } catch (error) {
-      console.error("Error saving quiz results:", error);
-      toast.error(error.message || "Failed to save quiz results");
+      console.error("Error saving quiz result:", error);
+      toast.error("Failed to save quiz result. Please try again.");
     }
+  };
+
+  const startNewQuiz = () => {
+    setCurrentQuestion(0);
+    setAnswers([]);
+    setShowExplanation(false);
+    generateQuizFn();
+    setResultData(null);
   };
 
   if (generatingQuiz) {
@@ -112,7 +110,7 @@ const Quiz = () => {
     );
   }
 
-  if (!quizData || quizData.length === 0) {
+  if (!quizData) {
     return (
       <Card className="mx-2">
         <CardHeader>
@@ -120,7 +118,7 @@ const Quiz = () => {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            This quiz contains 10 questions specific to your industry and
+            This quiz contains 20 questions specific to your industry and
             skills. Take your time and choose the best answer for each question.
           </p>
         </CardContent>
@@ -180,7 +178,7 @@ const Quiz = () => {
           className="ml-auto"
         >
           {savingResult && (
-            <BarLoader className="mt-4" width={"100%"} color="gray" />
+            <Loader2 className="mt-4" width={"100%"} color="gray" />
           )}
           {currentQuestion < quizData.length - 1
             ? "Next Question"
