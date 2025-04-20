@@ -9,6 +9,8 @@ import { Progress } from "../../../components/ui/progress";
 import { Briefcase, Brain } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, defs, linearGradient, stop } from "recharts";
 
+// #fe725d #724748 #3a001e
+
 const Dashboardview = ({ insights }) => {
   if (!insights?.insights) {
     console.error("Insights object is null or undefined.");
@@ -153,16 +155,16 @@ const Dashboardview = ({ insights }) => {
                 <BarChart data={salaryData}>
                   <defs>
                     <linearGradient id="minGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#fe725d" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#fe725d" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#3a001e" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#3a001e" stopOpacity={0}/>
                     </linearGradient>
                     <linearGradient id="medianGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#724748" stopOpacity={0.8}/>
                       <stop offset="95%" stopColor="#724748" stopOpacity={0}/>
                     </linearGradient>
                     <linearGradient id="maxGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3a001e" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#3a001e" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#fe725d  " stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#fe725d" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" />

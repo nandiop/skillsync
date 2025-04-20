@@ -25,7 +25,7 @@ const HistoryPage = async () => {
           </p>
         </div>
         <Link href="/interview">
-          <Button>Back to Recent Quizzes</Button>
+          <Button>Back to Interview Prep</Button>
         </Link>
       </div>
 
