@@ -87,7 +87,7 @@ const QuizList = ({ assessments,  onViewHistory  }) => {
 
       <div className="relative top-[-400px] flex justify-center">
         <div className="items-center text-center">
-        <Button onClick={() => router.push("/interview/history")}>
+        <Button onClick={() => router.push("/interview/history")} variant={"outlined"} className= "border-1 hover:scale-x-105 transition-all ease-in cursor-pointer">
       View your quiz history
     </Button>
         </div>
