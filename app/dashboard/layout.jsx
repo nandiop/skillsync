@@ -1,12 +1,9 @@
 import React, { Suspense } from 'react'
 import { ClipLoader } from 'react-spinners'
 
-export default function DashboardLayout({ children }) {
+export default function InterviewLayout({ children }) {
   return (
     <div className='w-full flex flex-col items-center align-middle'>
-      <div className='flex items-center justify-between mb-5'>
-        {/* Optional heading logic here, or just remove this block */}
-      </div>
       <Suspense
         fallback={
           <div className="flex flex-wrap align-middle items-center justify-center min-h-[600px] space-y-4">
