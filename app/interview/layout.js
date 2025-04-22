@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react'
 import { ClipLoader } from 'react-spinners'
 
-const Layout = ({ children, showHeading = true }) => {
+const Layout = ({ children}) => {
   return (
    <div>
         <Suspense fallback={
