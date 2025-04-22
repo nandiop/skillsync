@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react'
 import { ClipLoader } from 'react-spinners'
 
-const Layout = ({ children, showHeading = true }) => {
+export  const Layout = ({ children, showHeading = true }) => {
   return (
     <div className='w-full flex flex-col items-center align-middle'>
         {showHeading && (
@@ -29,4 +29,4 @@ const Layout = ({ children, showHeading = true }) => {
   )
 }
 
-export  Layout
+
