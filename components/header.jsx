@@ -60,7 +60,7 @@ export default function Header({ user }) {
                 <DropdownMenuItem asChild>
                   <Link href="/resume" className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
-                    Build Resume
+                    Resume ATS Check
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>

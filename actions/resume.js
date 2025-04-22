@@ -1,122 +1,97 @@
-"use server";
-import auth from "@clerk/nextjs/server"
+import { auth } from "@clerk/nextjs/server";
 import { db } from "../lib/prisma";
-import { revalidatePath } from "next/cache";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { revalidatePath } from "next/cache";
 
+// === Initialize Gemini Model ===
+let model;
+try {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error("GEMINI_API_KEY is not set in environment variables");
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-if (!GEMINI_API_KEY) {
-  throw new Error("GEMINI_API_KEY is not set in environment variables");
+  const genAI = new GoogleGenerativeAI(key);
+  model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+} catch (err) {
+  console.error("❌ Gemini initialization error:", err);
 }
-if (!GEMINI_API_KEY.startsWith("AIza")) {
-  throw new Error("Invalid GEMINI_API_KEY format. It should start with 'AIza'");
-}
 
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// === Save Resume with ATS Score ===
+export async function saveResumeWithScore(resumeText) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
 
-export async function saveResume(content)
+  const user = await db.user.findUnique({
+    where: { clerkUserId: userId },
+  });
+
+  if (!user) throw new Error("User not found");
+
+  // Prompt with correct format
+  const prompt = `
+You are an AI-powered Applicant Tracking System (ATS).
+Review the following resume content and assign an ATS-friendliness score out of 100.
+Then, explain your reasoning in 2-3 sentences.
+
+Resume content:
+"""
+${resumeText}
+"""
+
+Respond ONLY in this JSON format:
+
 {
-    const { userId } = await auth();
-        if (!userId) throw new Error("Unauthorized");
-      
-        const user = await db.user.findUnique({
-          where: { clerkUserId: userId },
-          select: {
-            industry: true,
-            skills: true,
-          },
-        });
-      
-        if (!user) throw new Error("User not found");
-
-        try {
-            const resume = await db.resume.upsert({
-                where: {
-                    userId: user.id,
-
-
-                },
-                update :{
-                    content,
-                },
-                create :{
-                    userId: user.id,
-                    content,
-                },
-            });
-
-            revalidatePath("/resume")
-            return resume
-        } catch (error) {
-            ConnectorInSerializer.log("Error saving resume:",error.message)
-            throw new Error("Failed to save resume")
-            
-        }
-
+  "atsScore": [
+    {
+      "score": 70,
+      "explanation": "Your resume highlights relevant skills and experience, and is formatted in a clear, concise manner."
+    }
+  ]
 }
-
-export async function getResume()
-{
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-  
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-      select: {
-        industry: true,
-        skills: true,
-      },
-    });
-  
-    if (!user) throw new Error("User not found");
-
-    return await db.resume.findUnique({
-        where:{
-            userId: user.id,
-
-        },
-    });
-
-}
-
-export async function improveWithAI({ current, type }) {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-  
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-      include: {
-        industryInsight: true,
-      },
-    });
-  
-    if (!user) throw new Error("User not found");
-
-
-    const prompt = `As an expert resume writer, improve the following ${type} description for a ${user.industry} professional.
-    Make it more impactful, quantifiable, and aligned with industry standards.
-    Current content: "${current}"
-
-    Requirements:
-    1. Use action verbs
-    2. Include metrics and results where possible
-    3. Highlight relevant technical skills
-    4. Keep it concise but detailed
-    5. Focus on achievements over responsibilities
-    6. Use industry-specific keywords
-    
-    Format the response as a single paragraph without any additional text or explanations.
-  `;
+`;
 
   try {
     const result = await model.generateContent(prompt);
-    const response = result.response;
-    const improveContent = response.text().trim();
-    return improveContent;
-  } catch (error) {
-    console.log("Error improving content", error);
-    throw new Error("Failed to improve content");
+    const responseText = result.response.text().trim();
+
+    console.log("Raw AI Response:", responseText); // Log the raw response
+
+    // Try to match valid JSON format
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/); // match anything inside {}
+
+    if (!jsonMatch) {
+      throw new Error("Failed to extract JSON from AI response");
+    }
+
+    // Parse the matched JSON part
+    const parsed = JSON.parse(jsonMatch[0]);
+    const scoreObj = parsed?.atsScore?.[0];
+
+    if (!scoreObj || typeof scoreObj.score !== "number" || !scoreObj.explanation) {
+      throw new Error("Invalid AI response format");
+    }
+
+    const atsScore = Math.min(Math.max(scoreObj.score, 0), 100);
+    const explanation = scoreObj.explanation;
+
+    // Save the resume and ATS score in the database
+    const resume = await db.resume.upsert({
+      where: { userId: user.id },
+      update: {
+        content: resumeText,
+        atsScore,
+      },
+      create: {
+        userId: user.id,
+        content: resumeText,
+        atsScore,
+      },
+    });
+
+    revalidatePath("/resume");
+
+    return { resume, explanation };
+  } catch (err) {
+    console.error("❌ Failed to generate ATS score or parse response:", err);
+    throw new Error("Failed to generate ATS score");
   }
 }
