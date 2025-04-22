@@ -29,4 +29,4 @@ const Layout = ({ children, showHeading = true }) => {
   )
 }
 
-export default Layout
+export  Layout
