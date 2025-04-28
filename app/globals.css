@@ -158,6 +158,11 @@
   background: linear-gradient(to left, #FE725D, #f89788,  #FE725D);
 }
 
+.gradient-orange-border {
+ border-color:#FE725D;
+ border-width: 1px;
+}
+
 
 .gradient-title {
   font-weight: 800;
