@@ -26,13 +26,20 @@ export default function Header({ user }) {
         <header className="fixed top-7 left-0 right-0 mx-auto max-w-screen-xl w-full px-4 rounded-2xl border-b bg-background/80 backdrop-blur-md z-50 supports-[backdrop-filter]:bg-background/60">
 
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/">
+        <Link href="/" className="flex group transition-all ease">
           <Image
-            src="/Skillsync-02.png"
+            src="/SkillSync final logo-1-03.png"
             alt="SkillSync.ai Logo"
             width={200}
             height={60}
-            className="h-12 py-1 w-auto object-contain"
+            className="h-12 py-1 w-auto object-contain transition-all duration-500 ease-linear group-hover:rotate-45"
+          />
+           <Image
+            src="/SkillSync final logo-2-03.png"
+            alt="SkillSync.ai Logo"
+            width={200}
+            height={60}
+            className=" h-12 py-1 w-auto object-contain ml-2 transition-all duration-500 ease-linear group-hover:opacity-100"
           />
         </Link>
 
