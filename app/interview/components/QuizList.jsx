@@ -83,9 +83,9 @@ const QuizList = ({ assessments,  onViewHistory  }) => {
           />
         </DialogContent>
       </Dialog>
-      <div className="w-full h-96 flex bg-gradient-to-b from-transparent to-[#0A0A0A] bottom-0 relative  top-[-355px] "  />
+    
 
-      <div className="relative top-[-400px] flex justify-center">
+      <div className="relative mt-10 flex justify-center">
         <div className="items-center text-center">
         <Button onClick={() => router.push("/interview/history")} variant={"outlined"} className= "border-1 hover:scale-x-105 transition-all ease-in cursor-pointer">
       View your quiz history

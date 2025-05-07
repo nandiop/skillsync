@@ -6,8 +6,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui
 const StatCards = ({ assessments }) => {
   const averageScore = () => {
     if (!assessments || assessments.length === 0) return 0;
-    const totalScore = assessments.reduce((sum, a) => sum + a.price, 0);
-    return (totalScore / assessments.length).toFixed(1);
+    console.log("Assesments", assessments);
+    
+    const quizScores = assessments?.map(a => Number(a.quizScore)).filter(score => !isNaN(score)) || [];
+
+    // Total score
+    const totalScore = quizScores.reduce((sum, score) => sum + score, 0);
+  
+    // Average score
+    const averageScore = quizScores.length > 0 ? (totalScore / quizScores.length).toFixed(1) : 0;
+   
+  
+    console.log("All Scores:", quizScores);
+    console.log("Total Score:", totalScore);
+    console.log("Average Score:", averageScore);
+    return averageScore;
   };
 
   const getTotalQuestions = () => {
@@ -17,7 +30,8 @@ const StatCards = ({ assessments }) => {
 
   const getLatestScore = () => {
     if (!assessments || assessments.length === 0) return "N/A";
-    return assessments[0].quizScore || "N/A";
+    const assesmentsLastIndex = assessments.length-1;
+    return assessments[assesmentsLastIndex].quizScore || "N/A";
   };
 
   return (
@@ -47,7 +61,7 @@ const StatCards = ({ assessments }) => {
           <CardTitle className="text-sm font-medium">Latest Score</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{getLatestScore()}</div>
+          <div className="text-2xl font-bold">{getLatestScore()}%</div>
           <p className="text-xs text-muted-foreground">From the most recent assessment.</p>
         </CardContent>
       </Card>
